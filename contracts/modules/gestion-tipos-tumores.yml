@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Pacientes
+  version: 1.0.0
+  description: API para el CRUD (Crear, Consultar, Actualizar, Desactivar) de pacientes.
+
+servers:
+  - url: https://api.mi-dominio-clinica.com/api/v1/clinica/gestion-tipos-tumores
+    description: Servidor de Producción principal.
+
+  - url: http://localhost:3000/api/v1/clinica/gestion-tipos-tumores
+    description: Entorno de desarrollo local (API Gateway).
+
+paths:
+  /registerTypeTumor:
+    post:
+      summary: Registrar tipo de tumor
+      tags:
+        - Tipo de tumor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTypeTumorSchema'
+      responses:
+        '201':
+          description: Tipo de tumor registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoTumorSchema'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+          
+  
+  /updateTypeTumor:
+    patch:
+      summary: Actualizar datos del tipo de tumor
+      tags:
+        - Tipo de Tumor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdRequiredSchema'
+      responses:
+        '200':
+          description: Datos del tipo de tumor actualizados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoTumorSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+          
+  /searchTypeTumor:
+    get:
+      summary: Consultar tipo de Tumor por Identificador Único
+      tags:
+        - Tipo de Tumor
+      parameters:
+        - in: query
+          name: identifier
+          schema:
+            type: string
+            format: ObjectId
+          required: true
+          description: Identificador único del tipo de tumor.
+      responses:
+        '200':
+          description: Tipo de tumor Consultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoTumorSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /deleteTypeTumor:
+    post:
+      summary: Eliminar registro del tipo de tumor
+      tags:
+        - Tipo Tumor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Datos requeridos para eliminar un registro.
+              required:
+                - identifier
+              properties:
+                identifier:
+                  type: string
+                  nullable: false
+                  description: Identificador único del tipo de tumor.
+                  example: "A55"
+      responses:
+        '200':
+          description: Registro Eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Registro Eliminado
+                properties:
+                  identifier:
+                    type: string
+                    nullable: false
+                    description: Identificador único del tipo de tumor.
+                    example: "123456"
+                  mensaje:
+                    type: string
+                    nullable: false
+                    description: Mensaje de eliminación.
+                    example: Registro eliminado correctamente.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+
+  schemas:
+    TipoTumorSchema:
+      type: object
+      description: Datos del tipo de Tumor.
+      properties:
+        identifier:
+          type: string
+          nullable: false
+          description: Identificador único del tipo de tumor.
+          example: "123456"
+        name:
+          type: string
+          nullable: false
+          description: Nombre del tipo de tumor.
+          example: Cáncer de Mama
+        systemAffected:
+          type: string
+          nullable: false
+          description: Sistema afectado por el tipo de tumor.
+          example: Glándulas.
+    IdRequiredSchema:
+      type: object
+      description: Datos requeridos para actualizar un tipo de tumor.
+      required:
+        - identifier
+      properties:
+        identifier:
+          type: string
+          nullable: false
+          description: Identificador único del tipo de tumor.
+          example: "123456"
+        name:
+          type: string
+          nullable: false
+          description: Nombre del tipo de tumor.
+          example: Cáncer de Mama
+        systemAffected:
+          type: string
+          nullable: false
+          description: Sistema afectado por el tipo de tumor.
+          example: Glándulas.
+    CreateTypeTumorSchema:
+      type: object
+      description: Datos requeridos para crear un paciente de la clínica
+      required:
+        - identifier
+        - name
+        - systemAffected
+      properties:
+        identifier:
+          type: string
+          nullable: false
+          description: Identificador único del tipo de tumor.
+          example: "123456"
+        name:
+          type: string
+          nullable: false
+          description: Nombre del tipo de tumor.
+          example: Cáncer de Mama
+        systemAffected:
+          type: string
+          nullable: false
+          description: Sistema afectado por el tipo de tumor.
+          example: Glándulas.
+          
+  responses:
+    BadRequest:
+          description: Bad Request - Error en la petición del cliente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Por favor revise los campos.
+    ServerInternalError:
+      description: Internal Server Error - Error del servidor.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode:
+                type: integer
+                example: 500
+              message:
+                type: string
+                example: Error interno generado.
+    NotFound:
+      description: Tipo de Tumor no encontrado

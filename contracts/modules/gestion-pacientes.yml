@@ -1,0 +1,269 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Pacientes
+  version: 1.0.0
+  description: API para el CRUD (Crear, Consultar, Actualizar, Desactivar) de pacientes.
+
+servers:
+  - url: https://api.mi-dominio-clinica.com/api/v1/clinica/gestion-pacientes
+    description: Servidor de Producción principal.
+
+  - url: http://localhost:3000/api/v1/clinica/gestion-pacientes
+    description: Entorno de desarrollo local (API Gateway).
+
+paths:
+  /registerPatient:
+    post:
+      summary: Crear nuevo paciente
+      tags:
+        - Pacientes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientSchema'
+      responses:
+        '201':
+          description: Paciente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientSchema'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+          
+  
+  /updatePatient:
+    patch:
+      summary: Actualizar datos del paciente
+      tags:
+        - Pacientes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdRequiredSchema'
+      responses:
+        '200':
+          description: Datos del paciente actualizados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+          
+  /searchPatient:
+    get:
+      summary: Consultar paciente por Documento Único
+      tags:
+        - Pacientes
+      parameters:
+        - in: query
+          name: documento
+          schema:
+            type: string
+            format: ObjectId
+          required: true
+          description: Documento Identificador único del paciente.
+      responses:
+        '200':
+          description: Paciente Consultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /deactivatePatient:
+    patch:
+      summary: Desactivar Paciente
+      tags:
+        - Pacientes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Datos requeridos para desactivar un paciente.
+              required:
+                - documento
+              properties:
+                id:
+                  type: string
+                  nullable: false
+                  description: Documento único del paciente.
+                  example: "123456"
+      responses:
+        '200':
+          description: Paciente desactivado
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Paciente desactivado
+                properties:
+                  id:
+                    type: string
+                    nullable: false
+                    description: Documento único del paciente.
+                    example: "123456"
+                  mensaje:
+                    type: string
+                    nullable: false
+                    description: Mensaje de desactivación.
+                    example: Paciente desactivado correctamente.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+
+  schemas:
+    PatientSchema:
+      type: object
+      description: Datos Paciente.
+      properties:
+        documento:
+          type: string
+          nullable: false
+          description: Documento único del paciente.
+          example: "123456"
+        firstName:
+          type: string
+          nullable: false
+          description: Nombre del paciente.
+          example: Luis
+        birthDate:
+          type: string
+          nullable: false
+          description: Fecha de nacimiento del paciente.
+          example: 2000-10-25.
+        gender:
+          type: string
+          nullable: false
+          description: Género del paciente.
+          example: Mujer
+        status:
+          type: string
+          nullable: false
+          description: Estado del paciente.
+          example: Activo, Seguimiento
+          default: true
+    IdRequiredSchema:
+      type: object
+      description: Datos requeridos para actualizar un paciente.
+      required:
+        - documento
+      properties:
+        id:
+          type: string
+          nullable: false
+          description: Documento único del paciente.
+          example: "123456"
+        firstName:
+          type: string
+          nullable: false
+          description: Nombre del paciente.
+          example: Luis
+        birthDate:
+          type: string
+          nullable: false
+          description: Fecha de nacimiento del paciente.
+          example: 2000-10-25.
+        gender:
+          type: string
+          nullable: false
+          description: Género del paciente.
+          example: Mujer
+        status:
+          type: string
+          nullable: false
+          description: Estado del paciente.
+          example: Activo, Seguimiento
+          default: true
+    CreatePatientSchema:
+      type: object
+      description: Datos requeridos para crear un paciente de la clínica
+      required:
+        - documento
+        - firstName
+        - lastName
+        - birthDate
+        - gender
+        - status
+      properties:
+        documento:
+          type: string
+          nullable: false
+          description: Nombre del paciente.
+          example: "123456"
+        firstName:
+          type: string
+          nullable: false
+          description: Nombre del paciente.
+          example: Luis
+        birthDate:
+          type: string
+          nullable: false
+          description: Fecha de nacimiento del paciente.
+          example: 2000-10-25.
+        gender:
+          type: string
+          nullable: false
+          description: Género del paciente.
+          example: Mujer
+        status:
+          type: string
+          nullable: false
+          description: Estado del paciente.
+          example: Activo, Seguimiento
+          default: true
+          
+  responses:
+    BadRequest:
+          description: Bad Request - Error en la petición del cliente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Por favor revise los campos.
+    ServerInternalError:
+      description: Internal Server Error - Error del servidor.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode:
+                type: integer
+                example: 500
+              message:
+                type: string
+                example: Error interno generado.
+    NotFound:
+      description: Paciente no encontrado
