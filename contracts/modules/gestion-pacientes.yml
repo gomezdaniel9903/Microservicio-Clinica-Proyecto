@@ -66,7 +66,7 @@ paths:
         - Pacientes
       parameters:
         - in: query
-          name: documento
+          name: document
           schema:
             type: string
             format: ObjectId
@@ -99,7 +99,7 @@ paths:
               type: object
               description: Datos requeridos para desactivar un paciente.
               required:
-                - documento
+                - document
               properties:
                 id:
                   type: string
@@ -139,7 +139,7 @@ components:
       type: object
       description: Datos Paciente.
       properties:
-        documento:
+        document:
           type: string
           nullable: false
           description: Documento único del paciente.
@@ -169,7 +169,7 @@ components:
       type: object
       description: Datos requeridos para actualizar un paciente.
       required:
-        - documento
+        - document
       properties:
         id:
           type: string
@@ -201,14 +201,14 @@ components:
       type: object
       description: Datos requeridos para crear un paciente de la clínica
       required:
-        - documento
+        - document
         - firstName
         - lastName
         - birthDate
         - gender
         - status
       properties:
-        documento:
+        document:
           type: string
           nullable: false
           description: Nombre del paciente.
