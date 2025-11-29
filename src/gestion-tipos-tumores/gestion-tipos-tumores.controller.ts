@@ -22,6 +22,11 @@ export class GestionTiposTumoresController {
       findOne(@Query('identifier') id: string) {
         return this.service.findOne(id);
       }
+
+      @Get('searchTypeTumors')
+      findAll(){
+        return this.service.findAll();
+      }
     
       @Delete('deleteTypeTumor')
       remove(@Body() body: { identifier: string }) {

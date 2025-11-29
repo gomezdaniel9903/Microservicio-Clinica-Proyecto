@@ -5,7 +5,7 @@ export type HistoriaClinicaDocument = HydratedDocument<Paciente>;
 @Schema({ collection: 'Patient', timestamps: true })
 export class Paciente {
 
-  @Prop({ required: true,unique: true })
+  @Prop({ required: true})
   document: string;
 
   @Prop({ required: true })

@@ -22,6 +22,11 @@ export class GestionPacientesController {
     findOne(@Query('document') id: string) {
       return this.service.findOne(id);
     }
+
+    @Get('searchPatients')
+    findAll() {
+      return this.service.findAll();
+    }
   
     @Patch('deactivatePatient')
     remove(@Body() body: { document: string }) {

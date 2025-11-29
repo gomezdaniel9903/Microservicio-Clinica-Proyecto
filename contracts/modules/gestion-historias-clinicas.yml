@@ -5,6 +5,8 @@ info:
   description: API para el CRUD (Crear, Consultar, Actualizar, Desactivar) de pacientes.
 
 servers:
+  - url: http://clinica-app-service:3000/api/v1/clinical/manage-clinical-records
+    description: Entorno de producción Kubernetes (API Gateway).
   - url: http://localhost:3000/api/v1/clinical/manage-clinical-records
     description: Entorno de desarrollo local (API Gateway).
 
@@ -74,7 +76,7 @@ paths:
           description: Identificador único de la Historia Clínica .
       responses:
         '200':
-          description: Historia Clínica Consultado
+          description: Registros obtenidos exitosamente.
           content:
             application/json:
               schema:
@@ -85,6 +87,21 @@ paths:
           $ref: '#/components/responses/ServerInternalError'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /searchClinicalRecords:
+    get:
+      summary: Obtener todos los registros.
+      tags:
+        - Historias Clínicas
+      responses:
+        '200':
+          description: Historia Clínica Consultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClinicalRecordsSchema'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
 
   /deleteClinicalRecord:
     post:
@@ -135,6 +152,17 @@ paths:
 components:
 
   schemas:
+    ClinicalRecordsSchema:
+      type: object
+      description: Datos Historias Clínica.
+      properties:
+        registros:
+          type: array
+          nullable: false
+          description: Arreglo registros Historias clínicas
+          items:
+            $ref: '#/components/schemas/ClinicalRecordSchema'
+
     ClinicalRecordSchema:
       type: object
       description: Datos Historia Clínica.

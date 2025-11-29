@@ -5,6 +5,8 @@ info:
   description: API para el CRUD (Crear, Consultar, Actualizar, Desactivar) de pacientes.
 
 servers:
+  - url: http://clinica-app-service:3000/api/v1/clinica/gestion-pacientes
+    description: Entorno de producción Kubernetes (API Gateway).
   - url: http://localhost:3000/api/v1/clinica/gestion-pacientes
     description: Entorno de desarrollo local (API Gateway).
 
@@ -86,6 +88,22 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /searchPatients:
+    get:
+      summary: Consultar registros base de datos
+      tags:
+        - Pacientes
+      responses:
+        '200':
+          description: Pacientes Consultados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsSchema'
+        
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+
   /deactivatePatient:
     patch:
       summary: Desactivar Paciente
@@ -135,6 +153,16 @@ paths:
 components:
 
   schemas:
+    PatientsSchema:
+      type: object
+      description: Datos Pacientes.
+      properties:
+        registros:
+          type: array
+          nullable: false
+          description: Arreglo registros Pacientes
+          items:
+            $ref: '#/components/schemas/PatientSchema'
     PatientSchema:
       type: object
       description: Datos Paciente.

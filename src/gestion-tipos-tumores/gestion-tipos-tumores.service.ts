@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -15,9 +15,15 @@ export class GestionTiposTumoresService {
       private readonly tumorModel: Model<TiposTumores>,
     ) {}
   
-    // CREATE
     async create(dto: CreateGestionTiposTumoreDto) {
       try{
+        if(!dto.identifier || !dto.name || !dto.systemAffected){
+          throw new BadRequestException('Revise los campos enviados.');
+        }
+        const exists = await this.tumorModel.findOne({identifier:dto.identifier})
+        if(exists){
+          throw new InternalServerErrorException("El tipo de tumor ya existe en la base de datos.")
+        }
         const data = {
           ...dto
         };
@@ -30,57 +36,83 @@ export class GestionTiposTumoresService {
           datosGenerales: created,
         };
       }catch(error){
-        throw new InternalServerErrorException(error.errorResponse.errmsg)
+        throw new InternalServerErrorException(error)
       }
       
     }
   
-    // UPDATE
     async update(dto: UpdateGestionTiposTumoreDto) {
-      const { identifier, ...changes } = dto;
+      try{
+        const { identifier, ...changes } = dto;
   
-      const updated = await this.tumorModel.findOneAndUpdate({identifier:identifier}, changes, {
-        new: true,
-      });
-  
-      if (!updated) {
-        throw new NotFoundException('Tipo de Tumor no encontrada');
+        const updated = await this.tumorModel.findOneAndUpdate({identifier:identifier}, changes, {
+          new: true,
+        });
+    
+        if (!updated) {
+          throw new NotFoundException('Tipo de Tumor no encontrada');
+        }
+    
+        return {
+          msg: 'Tipo de Tumor actualizado',
+          id: updated.identifier,
+          datosGenerales: updated,
+        };
+      }catch(error){
+        throw new InternalServerErrorException(error)
       }
-  
-      return {
-        msg: 'Tipo de Tumor actualizado',
-        id: updated.identifier,
-        datosGenerales: updated,
-      };
+      
     }
   
-    // GET BY ID
     async findOne(id: string) {
-      const tumor = await this.tumorModel.findOne({identifier:id});
+      try{
+        const tumor = await this.tumorModel.findOne({identifier:id});
   
-      if (!tumor) {
-        throw new NotFoundException('Tipo de Tumor no encontrado');
+        if (!tumor) {
+          throw new NotFoundException('Tipo de Tumor no encontrado');
+        }
+    
+        return {
+          msg: 'Historia clínica consultada',
+          id: tumor.identifier,
+          datosGenerales: tumor,
+        };
+      }catch(error){
+        throw new InternalServerErrorException(error)
       }
+      
+    }
+
+    async findAll() {
+      try{
+        const tumor = await this.tumorModel.find();
   
-      return {
-        msg: 'Historia clínica consultada',
-        id: tumor.identifier,
-        datosGenerales: tumor,
-      };
+        return {
+          msg: 'Registros obtenidos exitosamente.',
+          registros: tumor,
+        };
+      }catch(error){
+        throw new InternalServerErrorException(error)
+      }
+      
     }
   
-    // DELETE
     async remove(id: string) {
-      const deleted = await this.tumorModel.findOneAndDelete({identifier:id});
+      try{
+        const deleted = await this.tumorModel.findOneAndDelete({identifier:id});
   
-      if (!deleted) {
-        throw new NotFoundException('Tipo de Tumor no encontrado');
+        if (!deleted) {
+          throw new NotFoundException('Tipo de Tumor no encontrado');
+        }
+    
+        return {
+          msg: 'Tipo de tumor eliminado',
+          id: deleted.identifier,
+          datosGenerales: deleted,
+        };
+      }catch(error){
+        throw new InternalServerErrorException(error)
       }
-  
-      return {
-        msg: 'Tipo de tumor eliminado',
-        id: deleted.identifier,
-        datosGenerales: deleted,
-      };
+      
     }
 }

@@ -5,6 +5,8 @@ info:
   description: API para el CRUD (Crear, Consultar, Actualizar, Desactivar) de pacientes.
 
 servers:
+  - url: http://clinica-app-service:3000/api/v1/clinica/gestion-tipos-tumores
+    description: Entorno de producción Kubernetes (API Gateway).
   - url: http://localhost:3000/api/v1/clinica/gestion-tipos-tumores
     description: Entorno de desarrollo local (API Gateway).
 
@@ -86,6 +88,22 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /searchTypeTumors:
+    get:
+      summary: Consultar tipos de Tumores base de datos
+      tags:
+        - Tipos de Tumor
+      responses:
+        '200':
+          description: Tipo de tumor Consultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoTumoresSchema'
+        '500':
+          $ref: '#/components/responses/ServerInternalError'
+        
+
   /deleteTypeTumor:
     post:
       summary: Eliminar registro del tipo de tumor
@@ -135,6 +153,16 @@ paths:
 components:
 
   schemas:
+    TipoTumoresSchema:
+      type: object
+      description: Datos Tipos Tumores.
+      properties:
+        registros:
+          type: array
+          nullable: false
+          description: Arreglo registros Tipos Tumores
+          items:
+            $ref: '#/components/schemas/TipoTumorSchema'
     TipoTumorSchema:
       type: object
       description: Datos del tipo de Tumor.

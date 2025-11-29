@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -17,10 +17,23 @@ export class GestionPacientesService {
   
     async create(dto: CreateGestionPacienteDto) {
       try{
+
+        if(!dto.document || !dto.lastName || !dto.lastName || !dto.birthDate || !dto.gender){
+          throw new BadRequestException('Revise los campos enviados.');
+        }
+        if(!dto.status){
+          dto.status = 'Activo';
+        }
+        const exists = await this.patientModel.findOne({document:dto.document})
+        if(exists){
+          throw new InternalServerErrorException("El paciente ya existe en la base de datos.")
+        }
         const data = {
           ...dto,
           diagnosisDate: new Date(dto.birthDate),
         };
+
+        
     
         const created = await this.patientModel.create(data);
     
@@ -30,7 +43,7 @@ export class GestionPacientesService {
           datosGenerales: created,
         };
       }catch(error){
-        throw new InternalServerErrorException(error.errorResponse.errmsg)
+        throw new InternalServerErrorException(error)
       }
       
     }
@@ -57,7 +70,7 @@ export class GestionPacientesService {
           datosGenerales: updated,
         };
       }catch(error){
-        throw new InternalServerErrorException(error.errorResponse.errmsg)
+        throw new InternalServerErrorException(error)
       }
       
     }
@@ -76,7 +89,21 @@ export class GestionPacientesService {
           datosGenerales: patient,
         };
       }catch(error){
-        throw new InternalServerErrorException(error.errorResponse.errmsg)
+        throw new InternalServerErrorException(error)
+      }
+      
+    }
+
+    async findAll() {
+      try{
+        const patient = await this.patientModel.find();
+    
+        return {
+          msg: 'Registros obtenidos exitosamente.',
+          registros: patient,
+        };
+      }catch(error){
+        throw new InternalServerErrorException(error)
       }
       
     }
@@ -95,7 +122,7 @@ export class GestionPacientesService {
           datosGenerales:deactivated,
         };
       }catch(error){
-        throw new InternalServerErrorException(error.errorResponse.errmsg)
+        throw new InternalServerErrorException(error)
       }
       
     }

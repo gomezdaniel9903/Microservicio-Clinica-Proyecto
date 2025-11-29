@@ -22,6 +22,11 @@ export class GestionHistoriasClinicasController {
     return this.service.findOne(id);
   }
 
+  @Get('searchClinicalRecords')
+  findAll() {
+    return this.service.findAll();
+  }
+
   @Delete('deleteClinicalRecord')
   remove(@Body() body: { identifier: string }) {
     return this.service.remove(body.identifier);

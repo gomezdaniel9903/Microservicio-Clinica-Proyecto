@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -23,6 +23,11 @@ export class GestionHistoriasClinicasService {
 
   async create(dto: CreateGestionHistoriasClinicaDto) {
     try{
+      if(!dto.identifier || !dto.patientId || !dto.tumorTypeId || !dto.diagnosisDate || !dto.stage
+        || !dto.treatmentProtocol
+      ){
+        throw new BadRequestException('Revise los campos enviados.');
+      }
       const data = {
         ...dto,
         diagnosisDate: new Date(dto.diagnosisDate),
@@ -48,7 +53,7 @@ export class GestionHistoriasClinicasService {
         datosGenerales: created,
       };
     }catch(error){
-      throw new InternalServerErrorException(error.errorResponse.errmsg)
+      throw new InternalServerErrorException(error)
     }
     
   }
@@ -75,7 +80,7 @@ export class GestionHistoriasClinicasService {
         datosGenerales: updated,
       };
     }catch(error){
-      throw new InternalServerErrorException(error.errorResponse.errmsg)
+      throw new InternalServerErrorException(error)
     }
     
   }
@@ -94,7 +99,22 @@ export class GestionHistoriasClinicasService {
         datosGenerales: historia,
       };
     }catch(error){
-      throw new InternalServerErrorException(error.errorResponse.errmsg)
+      throw new InternalServerErrorException(error)
+    }
+    
+  }
+
+  async findAll() {
+    try{
+      const historia = await this.clinicalRecordModel.find();
+
+      return {
+        msg: 'Registros obtenidos exitosamente.',
+        registros: historia
+        
+      };
+    }catch(error){
+      throw new InternalServerErrorException(error)
     }
     
   }
@@ -113,7 +133,7 @@ export class GestionHistoriasClinicasService {
         datosGenerales: deleted,
       };
     }catch(error){
-      throw new InternalServerErrorException(error.errorResponse.errmsg)
+      throw new InternalServerErrorException(error)
     }
     
   }
