@@ -28,7 +28,7 @@ export class GestionHistoriasClinicasController {
   }
 
   @Delete('deleteClinicalRecord')
-  remove(@Body() body: { identifier: string }) {
-    return this.service.remove(body.identifier);
+  remove(@Query('identifier') id: string) {
+    return this.service.remove(id);
   }
 }

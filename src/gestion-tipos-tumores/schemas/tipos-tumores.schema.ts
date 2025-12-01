@@ -4,7 +4,7 @@ export type TiposTumoresDocument = HydratedDocument<TiposTumores>;
 
 @Schema({ collection: 'TumorType', timestamps: true })
 export class TiposTumores {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   identifier: string;
 
   @Prop({ required: true })

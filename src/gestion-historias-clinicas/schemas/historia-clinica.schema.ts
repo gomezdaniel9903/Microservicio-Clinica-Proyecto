@@ -4,7 +4,7 @@ export type HistoriaClinicaDocument = HydratedDocument<HistoriaClinica>;
 
 @Schema({ collection: 'ClinicalRecord', timestamps: true })
 export class HistoriaClinica {
-  @Prop({ required: true, unique:true })
+  @Prop({ required: true })
   identifier: string;
 
   @Prop({ required: true })
